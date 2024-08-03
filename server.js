@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { auth } = require('express-oauth2-jwt-bearer');
+const mongoose = require('mongoose');
 
 const databaseConnection = require('./Routes/databaseConnection');
 
@@ -35,12 +36,19 @@ app.use('/user', databaseConnection);
 
 
 
+// Connect to MongoDB
+mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sxqus.mongodb.net/MovieMatcher ",)
+.then(() => {
+    console.log("Connected to MongoDB");
+
+    // Start the server
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Server avviato su http://localhost:${PORT}`);
+    });
+}).catch((error) => {
+    console.log("Error connecting to MongoDB", error);
+}
+);
 
 
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Server avviato su http://localhost:${PORT}`);
-
-});
