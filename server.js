@@ -1,6 +1,7 @@
 // server.js
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const jwt = require('jsonwebtoken');
 
@@ -9,6 +10,7 @@ const PORT = 9000; //process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors());
 
 // Secret key for JWT
 const SECRET_KEY = 'your_secret_key';
