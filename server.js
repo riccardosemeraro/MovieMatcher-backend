@@ -2,8 +2,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { auth } = require('express-oauth2-jwt-bearer');
 
-const jwt = require('jsonwebtoken');
+const databaseConnection = require('./Routes/databaseConnection');
+
+//verifica che il token ricevuto da Auth0 sia valido
+const jwtCheck = auth({
+    audience: 'moviematcher-certificate',
+    issuerBaseURL: 'https://dev-u3m6ogvornq7wv88.us.auth0.com',
+    tokenSigningAlg: 'RS256'
+});
 
 const app = express();
 const PORT = 9000; //process.env.PORT || 3000;
@@ -11,9 +19,7 @@ const PORT = 9000; //process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
-
-// Secret key for JWT
-const SECRET_KEY = 'your_secret_key';
+app.use(jwtCheck);
 
 app.get('/', (req, res) => {
     console.log('Hello World');
@@ -22,23 +28,7 @@ app.get('/', (req, res) => {
 
 
 //Route per verificare se l'utente è autenticato
-app.post('/verify', (req, res) => {
-    const user = req.body;
-
-    console.log('Dati ricevuti:', { user });
-
-    if (!user) {
-        return res.status(400).json({ message: 'User is required' });
-    }
-
-    try {
-        //simulazione script di verifica token
-
-        return res.status(200).json({ message: 'User is authenticated', user });
-    } catch (error) {
-        return res.status(401).json({ message: 'Invalid token' });
-    }
-});
+app.use('/user', databaseConnection);
 
 
 
