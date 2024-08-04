@@ -1,3 +1,4 @@
+const { application } = require('express');
 const User = require('../Models/Users');
 
 const verify = async (req, res) => {
@@ -10,31 +11,42 @@ const verify = async (req, res) => {
     }
 
     try {
-        //simulazione script di verifica token
+        //simulazione script di verifica che l'utente sia in MongoDB
 
         //da stringa a oggetto javascript
         user = JSON.parse(user.body);
         
-        const userAlreadyExists = await User.Users.findOne({ Sub: user.sub });
+        //voglio printare una cosa sulla pagina web del browser
+        console.log('Utente: ' + user.sub);
+
+        //const userAlreadyExists = await User.Users.findOne({ Sub: user.sub });
+        const userAlreadyExists = await User.Users.findById(user.sub);
 
         console.log('Utente in MongoDB:', { userAlreadyExists });
 
-        if (!userAlreadyExists) {
+        if (userAlreadyExists === null) {
             const newUser = new User.Users({
+                _id: user.sub,
                 Username: user.nickname,
                 MyList: [],
                 WatchList: [],
                 ListGenres: [],
-                Cognome: user.family_name,
+                Cognome: user.family_name || '',
                 Email: user.email,
-                Nome: user.given_name,
+                Nome: user.given_name || '',
                 Sub: user.sub
-             });
+            });
 
-             const savedUser = await newUser.save();
+            console.log('Nuovo utente:', { newUser });
             
-             console.log("Utente salvato in MongoDB:", { savedUser });
-             res.status(200).json({ message: 'User is saved in DB', user });
+            try {
+                const savedUser = await newUser.save();
+                console.log("Utente salvato in MongoDB:", { savedUser });
+                res.status(200).json({ message: 'User is saved in DB', user });
+            } catch (saveError) {
+                console.error("Errore durante il salvataggio dell'utente:", saveError);
+                res.status(500).json({ message: 'Error saving user', error: saveError });
+            }
         }
         else{
             console.log("Utente già presente in MongoDB:", { userAlreadyExists });

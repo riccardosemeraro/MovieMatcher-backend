@@ -37,7 +37,7 @@ app.use('/user', databaseConnection);
 
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sxqus.mongodb.net/MovieMatcher ",)
+mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sxqus.mongodb.net/MovieMatcher",)
 .then(() => {
     console.log("Connected to MongoDB");
 

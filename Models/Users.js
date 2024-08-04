@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
+
 const usersSchema = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
+    _id: {
+        type: String,
+        required: true,
+    },
     Username: {
         type: String,
         required: true,
@@ -19,7 +23,7 @@ const usersSchema = mongoose.Schema({
     },
     Cognome: {
         type: String,
-        required: true,
+        required: false,
     },
     Email: {
         type: String,
@@ -27,7 +31,7 @@ const usersSchema = mongoose.Schema({
     },
     Nome: {
         type: String,
-        required: true
+        required: false
     },
     Sub: {
         type: String,
