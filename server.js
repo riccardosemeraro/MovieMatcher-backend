@@ -31,11 +31,6 @@ app.get('/', (req, res) => {
 //Route per verificare se l'utente è autenticato
 app.use('/user', databaseConnection);
 
-
-
-
-
-
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sxqus.mongodb.net/MovieMatcher",)
 .then(() => {

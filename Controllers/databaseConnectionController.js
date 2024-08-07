@@ -16,8 +16,7 @@ const verify = async (req, res) => {
         //da stringa a oggetto javascript
         user = JSON.parse(user.body);
         
-        //voglio printare una cosa sulla pagina web del browser
-        console.log('Utente: ' + user.sub);
+        //console.log('Utente: ' + user.sub);
 
         //const userAlreadyExists = await User.Users.findOne({ Sub: user.sub });
         const userAlreadyExists = await User.Users.findById(user.sub);
