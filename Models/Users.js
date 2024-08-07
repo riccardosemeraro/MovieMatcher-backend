@@ -21,6 +21,10 @@ const usersSchema = mongoose.Schema({
         type: Array,
         required: false,
     },
+    HistoryMatch: {
+        type: Array,
+        required: false,
+    },
     Cognome: {
         type: String,
         required: false,

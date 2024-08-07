@@ -30,6 +30,7 @@ const verify = async (req, res) => {
                 MyList: [],
                 WatchList: [],
                 ListGenres: [],
+                HistoryMatch: [],
                 Cognome: user.family_name || '',
                 Email: user.email,
                 Nome: user.given_name || '',
