@@ -31,7 +31,6 @@ app.use(cors());
 //app.use(jwtCheck);
 
 
-
 app.get('/', (req, res) => {
     console.log('Il server è attivo');
     res.status(200).send('Il server è attivo');
