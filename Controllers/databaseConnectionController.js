@@ -6,8 +6,12 @@ const verify = async (req, res) => {
     let user = req.body;
     const token = req.headers.authorization;
 
+    if (!token) {
+        res.status(401).json({ message: 'Token is required' });
+    }
+
     if (!user) {
-        return res.status(400).json({ message: 'User is required' });
+        res.status(400).json({ message: 'User is required' });
     }
 
     try {
@@ -53,7 +57,8 @@ const verify = async (req, res) => {
             res.status(200).json({ message: 'User is already in DB', user });
         }
     } catch (error) {
-        return res.status(401).json({ message: 'Invalid user' });
+        console.error("Errore durante la verifica dell'utente:", error);
+        res.status(401).json({ message: 'Invalid user' });
     }
 
 };
