@@ -65,4 +65,7 @@ const verify = async (req, res) => {
 
 //const ktm = ...;
 
-module.exports = {verify}; //ktm, ...
+module.exports =
+                {
+                    verify
+                }; //ktm, ...
