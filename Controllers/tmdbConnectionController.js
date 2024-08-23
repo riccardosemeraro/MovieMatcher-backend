@@ -29,7 +29,7 @@ const movieSlider = async (req, res) => {
         titolo = 'Film simili';
     } else if (type === 'raccomandations') {
         console.log("Richiesta di raccomandazioni");
-        const idUser = req.query.idUser;
+        const userNickname = req.query.userNickname;
         //const movies = ... dopo esecuzione di script di raccomandazione ritorna un vettore di film "sporchi"
         titolo = "Consigliati per te";
     }
@@ -64,6 +64,8 @@ const movieSlider = async (req, res) => {
             });
     } else {
         //gestione risposta script di raccomandazione
+
+        //da /tmdb devo andare a /user per prelevare la lista dei film MyList dell'utente con nickname e poi fare richesta a TMDB per i film raccomandati per ogni id della lista MyList
 
         res.status(200).json({ movies });
     }
@@ -148,6 +150,8 @@ const search = async (req, res) => {
             res.status(500).json({ message: 'Error searching movies to TMDB', error: error });
         });
 }
+
+
 
 module.exports = {
                     movieSlider,

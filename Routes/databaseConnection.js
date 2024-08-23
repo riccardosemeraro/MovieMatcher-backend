@@ -6,6 +6,8 @@ router.post('/verify', controllerDatabase.verify);
 router.post('/filmCheckList', controllerDatabase.filmCheckList);
 router.post('/addFilm', controllerDatabase.addFilm);
 router.post('/removeFilm', controllerDatabase.removeFilm);
+router.post('/getMyList', controllerDatabase.getMyList);
+router.post('/getWatchList', controllerDatabase.getWatchList);
 
 
 

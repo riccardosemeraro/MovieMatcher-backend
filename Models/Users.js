@@ -9,14 +9,38 @@ const usersSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    MyList: {
-        type: Array,
-        required: false,
-    },
-    WatchList: {
-        type: Array,
-        required: false,
-    },
+    MyList: [
+            {
+                id: {
+                    type: String,
+                    required: false
+                },
+                title: {
+                    type: String,
+                    required: false
+                },
+                poster_path: {
+                    type: String,
+                    required: false
+                }
+            },
+    ],
+    WatchList:  [
+                {
+                    id: {
+                        type: String,
+                        required: false
+                    },
+                    title: {
+                        type: String,
+                        required: false
+                    },
+                    poster_path: {
+                        type: String,
+                        required: false
+                    }
+                },
+    ],
     ListGenres: {
         type: Array,
         required: false,

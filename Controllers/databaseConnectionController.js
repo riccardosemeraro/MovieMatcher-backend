@@ -2,6 +2,7 @@ const { application } = require('express');
 const User = require('../Models/Users');
 const { use } = require('moongose/routes');
 const e = require('express');
+const { default: axios } = require('axios');
 
 const verify = async (req, res) => {
     console.log("Verifica che l'utente sia in MongoDB");
@@ -85,10 +86,11 @@ const filmCheckList = async (req, res) => {
             res.status(404).json({ message: 'User not found' });
         } else {
             let film = undefined;
+            
             if (list === 'visti') {
-                film = user.MyList.find((movie) => movie === movieId);
+                film = user.MyList.find((movie) => movie.id === movieId);
             } else if (list === 'vedere') {
-                film = user.WatchList.find((movie) => movie === movieId);
+                film = user.WatchList.find((movie) => movie.id === movieId);
             }
 
             if (film === undefined) {
@@ -109,11 +111,13 @@ const addFilm = async (req, res) => {
     
     const userSub = req.body.body.userSub;
     const movieId = req.body.body.movieId;
+    const movieTitle = req.body.body.movieTitle;
+    const moviePosterPath = req.body.body.moviePosterPath;
     const list = req.body.body.list;
 
     const token = req.headers.authorization;
 
-    if (!token && !userSub && !movieId && !list && !insert) {
+    if (!token && !userSub && !movieId && !list && !movieTitle && !moviePosterPath) {
         res.status(401).json({ message: 'Params missing' });
     }
 
@@ -124,8 +128,14 @@ const addFilm = async (req, res) => {
             res.status(404).json({ message: 'User not found' });
         } else {
             if(list === 'visti') {
-                if (!user.WatchList.includes(movieId) && !user.MyList.includes(movieId)) {
-                    user.MyList.push(movieId);
+                if ((user.MyList.find((movie) => movie.id === movieId)===undefined) && (user.WatchList.find((movie) => movie.id === movieId)===undefined)) { 
+                    const movie = {
+                        id: movieId,
+                        title: movieTitle,
+                        poster_path: moviePosterPath
+                    };
+                    console.log('Film da aggiungere:', { movie });
+                    user.MyList.push(movie);
                     //si deve aggiornare anche il database
                     await User.Users.findByIdAndUpdate(userSub, { MyList: user.MyList });
                     res.status(200).json({ valueState: false, message: 'Film added to list', list: 'visti'});
@@ -134,8 +144,13 @@ const addFilm = async (req, res) => {
                     res.status(200).json({ valueState: true, message: 'Film already in list', list: 'visti'});
                 }
             } else if (list === 'vedere') {
-                if (!user.WatchList.includes(movieId) && !user.MyList.includes(movieId)) {
-                    user.WatchList.push(movieId);
+                if (user.MyList.find((movie) => movie.id === movieId)===undefined && user.WatchList.find((movie) => movie.id === movieId)===undefined) {
+                    const movie = {
+                        id: movieId,
+                        title: movieTitle,
+                        poster_path: moviePosterPath
+                    };
+                    user.WatchList.push(movie);
                     await User.Users.findByIdAndUpdate(userSub, { WatchList: user.WatchList });
                     res.status(200).json({ valueState: false, message: 'Film added to list', list: 'vedere'});
                 }
@@ -160,7 +175,7 @@ const removeFilm = async (req, res) => {
 
     const token = req.headers.authorization;
 
-    if (!token && !userSub && !movieId && !list && !insert) {
+    if (!token && !userSub && !movieId && !list ) {
         res.status(401).json({ message: 'Params missing' });
     }
 
@@ -171,14 +186,14 @@ const removeFilm = async (req, res) => {
             res.status(404).json({ message: 'User not found' });
         } else {
             if(list === 'visti') {
-                if (user.MyList.includes(movieId)) {
-                    user.MyList = user.MyList.filter((movie) => movie !== movieId);
+                if (user.MyList.find((movie) => movie.id === movieId)!==undefined) {
+                    user.MyList = user.MyList.filter((movie) => movie.id !== movieId);
                     await User.Users.findByIdAndUpdate(userSub, { MyList: user.MyList });
                     res.status(200).json({ valueState: true, message: 'Film removed from list', list: 'visti'});
                 }
             } else if (list === 'vedere') {
-                if (user.WatchList.includes(movieId)) {
-                    user.WatchList = user.WatchList.filter((movie) => movie !== movieId);
+                if (user.WatchList.find((movie) => movie.id === movieId)!==undefined) {
+                    user.WatchList = user.WatchList.filter((movie) => movie.id !== movieId);
                     await User.Users.findByIdAndUpdate(userSub, { WatchList: user.WatchList });
                     res.status(200).json({ valueState: true, message: 'Film removed from list', list: 'vedere'});
                 }
@@ -191,11 +206,70 @@ const removeFilm = async (req, res) => {
     }
 };
 
+const getMyList = async (req, res) => {
+    console.log("Richiesta della mia lista visti");
+    const userNickname = req.body.body.userNickname;
+    const token = req.headers.authorization;
+
+    if (!token && !userNickname) {
+        res.status(401).json({ message: 'Params missing' });
+    }
+
+    try {
+        const user = await User.Users.findOne({ Username: userNickname });
+        console.log('User:', user);
+
+        if (user === null) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            
+            const movies = user.MyList;
+
+            if(movies) res.status(200).json({ title: 'I tuoi Film Visti',  movies: movies });
+            else res.status(404).json({title: 'I tuoi Film Visti', message: 'List not found' });
+
+        }
+    } catch (error) {
+        console.error("Errore durante la richiesta della lista:", error);
+        res.status(500).json({ message: 'Error getting list', error });
+    }
+};
+
+const getWatchList = async (req, res) => {
+    console.log("Richiesta della mia lista vedere");
+    const userNickname = req.body.body.userNickname;
+    const token = req.headers.authorization;
+
+    if (!token && !userNickname) {
+        res.status(401).json({ message: 'Params missing' });
+    }
+
+    try {
+        const user = await User.Users.findOne({ Username: userNickname });
+
+        if (user === null) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            
+            const movies = user.WatchList;
+
+            if(movies) res.status(200).json({ title: 'I tuoi Film da Vedere',  movies: movies });
+            else res.status(404).json({title: 'I tuoi Film da Vedere', message: 'List not found' });
+
+        }
+    } catch (error) {
+        console.error("Errore durante la richiesta della lista:", error);
+        res.status(500).json({ message: 'Error getting list', error });
+    }
+};
+
 
 module.exports =
                 {
                     verify,
                     filmCheckList,
                     addFilm,
-                    removeFilm
+                    removeFilm,
+                    getMyList,
+                    getWatchList
                 };
