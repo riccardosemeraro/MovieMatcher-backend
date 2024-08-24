@@ -263,6 +263,34 @@ const getWatchList = async (req, res) => {
     }
 };
 
+const getUserData = async (req, res) => {
+    console.log("Richiesta dei dati dell'utente");
+    const userNickname = req.body.body.userNickname;
+    const token = req.headers.authorization;
+
+    if (!token && !user) {
+        res.status(401).json({ message: 'Params missing' });
+    }
+
+    try {
+        const user = await User.Users.findOne({ Username: userNickname });
+
+        if (user === null) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            const userData = {
+                username: user.Username,
+                email: user.Email,
+                nome: user.Nome,
+                cognome: user.Cognome
+            };
+            res.status(200).json({ userData: userData });
+        }
+    } catch (error) {
+        console.error("Errore durante la richiesta dei dati dell'utente:", error);
+        res.status(500).json({ message: 'Error getting user data', error });
+    }
+};
 
 module.exports =
                 {
@@ -271,5 +299,6 @@ module.exports =
                     addFilm,
                     removeFilm,
                     getMyList,
-                    getWatchList
+                    getWatchList,
+                    getUserData
                 };

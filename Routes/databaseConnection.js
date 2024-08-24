@@ -9,7 +9,7 @@ router.post('/removeFilm', controllerDatabase.removeFilm);
 router.post('/getMyList', controllerDatabase.getMyList);
 router.post('/getWatchList', controllerDatabase.getWatchList);
 
-
+router.post('/getUserData', controllerDatabase.getUserData);
 
 
 module.exports = router;
