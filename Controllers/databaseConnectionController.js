@@ -49,7 +49,16 @@ const verify = async (req, res) => {
             try {
                 const savedUser = await newUser.save();
                 console.log("Utente salvato in MongoDB:", { savedUser });
-                res.status(200).json({ message: 'User is saved in DB', user });
+
+                const utente = {
+                    nickname: savedUser.Username,
+                    sub: savedUser.Sub,
+                    email: savedUser.Email,
+                    name: savedUser.Nome,
+                    surname: savedUser.Cognome
+                };
+
+                res.status(200).json({ message: 'User is saved in DB', user: utente });
             } catch (saveError) {
                 console.error("Errore durante il salvataggio dell'utente:", saveError);
                 res.status(500).json({ message: 'Error saving user', error: saveError });
@@ -57,7 +66,16 @@ const verify = async (req, res) => {
         }
         else{
             console.log("Utente già presente in MongoDB:", { userAlreadyExists });
-            res.status(200).json({ message: 'User is already in DB', user });
+
+            const utente = {
+                nickname: userAlreadyExists.Username,
+                sub: userAlreadyExists.Sub,
+                email: userAlreadyExists.Email,
+                name: userAlreadyExists.Nome,
+                surname: userAlreadyExists.Cognome
+            };
+
+            res.status(200).json({ message: 'User is already in DB', user: utente });
         }
     } catch (error) {
         console.error("Errore durante la verifica dell'utente:", error);
