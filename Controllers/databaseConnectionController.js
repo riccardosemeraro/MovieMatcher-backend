@@ -6,7 +6,7 @@ const { default: axios } = require('axios');
 
 const verify = async (req, res) => {
     console.log("Verifica che l'utente sia in MongoDB");
-    let user = req.body;
+    let user = req.body; //utente ricevuto da Auth0
     const token = req.headers.authorization;
 
     if (!token) {
@@ -125,7 +125,7 @@ const filmCheckList = async (req, res) => {
 };
 
 const addFilm = async (req, res) => {
-    console.log("Aggiungi o rimuovi un film dalla lista");
+    console.log("Aggiungi un film alla lista");
     
     const userSub = req.body.body.userSub;
     const movieId = req.body.body.movieId;
@@ -185,7 +185,7 @@ const addFilm = async (req, res) => {
 };
 
 const removeFilm = async (req, res) => {
-    console.log("Aggiungi o rimuovi un film dalla lista");
+    console.log("Rimuovi un film dalla lista");
     
     const userSub = req.body.body.userSub;
     const movieId = req.body.body.movieId;
@@ -286,7 +286,7 @@ const getUserData = async (req, res) => {
     const userNickname = req.body.body.userNickname;
     const token = req.headers.authorization;
 
-    if (!token && !user) {
+    if (!token && !userNickname) {
         res.status(401).json({ message: 'Params missing' });
     }
 
@@ -310,6 +310,42 @@ const getUserData = async (req, res) => {
     }
 };
 
+const updateUserData = async (req, res) => {
+
+    console.log("Richiesta di aggiornamento dei dati dell'utente");
+
+    const userSub = req.body.body.sub;
+    const userNewNickname = req.body.body.nickname;
+    const userNewNome = req.body.body.nome;
+    const userNewCognome = req.body.body.cognome;
+
+    const token = req.headers.authorization;
+
+    if (!token && !userSub && !userNewNickname && !userNewNome && !userNewCognome) {
+        res.status(401).json({ message: 'Params missing' });
+    }
+
+    try {
+        const userAlreadyExists = await User.Users.findOne({ Username: userNewNickname });
+
+        if (userAlreadyExists === null || userAlreadyExists.Sub === userSub) {
+            const user = await User.Users.findById(userSub);
+            user.Username = userNewNickname;
+            user.Nome = userNewNome;
+            user.Cognome = userNewCognome;
+            await User.Users.findByIdAndUpdate(userSub, { Username: userNewNickname, Nome: userNewNome, Cognome: userNewCognome });
+            res.status(200).json({ message: 'User data updated', user: user });
+        } else {
+            res.status(201).json({ message: 'Username already exists' });
+        }
+    } catch (error) {
+        console.error("Errore durante l'aggiornamento dei dati dell'utente:", error);
+        res.status(500).json({ message: 'Error updating user data', error });
+    }
+
+};
+
+
 module.exports =
                 {
                     verify,
@@ -318,5 +354,6 @@ module.exports =
                     removeFilm,
                     getMyList,
                     getWatchList,
-                    getUserData
+                    getUserData,
+                    updateUserData
                 };

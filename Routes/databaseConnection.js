@@ -10,6 +10,6 @@ router.post('/getMyList', controllerDatabase.getMyList);
 router.post('/getWatchList', controllerDatabase.getWatchList);
 
 router.post('/getUserData', controllerDatabase.getUserData);
-
+router.post('/updateUserData', controllerDatabase.updateUserData);
 
 module.exports = router;

@@ -10,8 +10,8 @@ const cors = require('cors');
 const { auth } = require('express-oauth2-jwt-bearer');
 const mongoose = require('mongoose');
 
-const databaseConnection = require('./Routes/databaseConnection');
-const tmdbConnection = require('./Routes/tmdbConnection');
+const databaseConnection = require('./Routes/databaseConnection'); //per i collegamenti a MongoDB
+const tmdbConnection = require('./Routes/tmdbConnection'); //per i collegamenti a TMDB
 
 //verifica che il token ricevuto da Auth0 sia valido
 const jwtCheck = auth({
