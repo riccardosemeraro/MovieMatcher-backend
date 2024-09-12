@@ -1,7 +1,4 @@
-const { application } = require('express');
 const User = require('../Models/Users');
-const { use } = require('moongose/routes');
-const e = require('express');
 const { default: axios } = require('axios');
 
 const verify = async (req, res) => {
@@ -244,7 +241,7 @@ const getMyList = async (req, res) => {
             const movies = user.MyList;
 
             if(movies) res.status(200).json({ title: 'I tuoi Film Visti',  movies: movies });
-            else res.status(404).json({title: 'I tuoi Film Visti', message: 'List not found' });
+            else res.status(404).json({title: 'I miei Film Visti', message: 'List not found' });
 
         }
     } catch (error) {
@@ -272,7 +269,7 @@ const getWatchList = async (req, res) => {
             const movies = user.WatchList;
 
             if(movies) res.status(200).json({ title: 'I tuoi Film da Vedere',  movies: movies });
-            else res.status(404).json({title: 'I tuoi Film da Vedere', message: 'List not found' });
+            else res.status(404).json({title: 'I miei Film da Vedere', message: 'List not found' });
 
         }
     } catch (error) {

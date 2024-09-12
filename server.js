@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 const PORT = 9000; //process.env.PORT || 3000;
+const SOCKETPORT = 10000; //porta per socket.io
 
 const databaseConnection = require('./Routes/databaseConnection'); //per i collegamenti a MongoDB
 const tmdbConnection = require('./Routes/tmdbConnection'); //per i collegamenti a TMDB
@@ -23,7 +24,9 @@ const gameConnection = require('./Routes/gameConnection'); //per i collegamenti 
 /*Inizio configurazione Socket.io*/
 const http = require('http'); //richiede il modulo http
 const server = http.createServer(app); //crea il server http
-const io = socketIo(server); //inizializza socket.io sul server http
+let io = socketIo(server, {cors: {origin: '*', methods: ['GET', 'POST']}}); //inizializza socket.io sul server http
+io = io.of('/game'); //crea uno spazio di nomi per il gioco
+//const gameNamespace = io.of('/game'); //crea uno spazio di nomi per il gioco
 /*Fine configurazione Socket.io*/
 
 
@@ -33,13 +36,6 @@ const jwtCheck = auth({
     issuerBaseURL: 'https://dev-u3m6ogvornq7wv88.us.auth0.com',
     tokenSigningAlg: 'RS256'
 });
-
-
-// Middleware per passare l'istanza di socket.io a tutte le route
-const socketIoMiddleware = (req, res, next) => {
-    req.io = io;
-    next(); //passa il controllo alla route successiva
-}
 
 
 // Middleware
@@ -60,9 +56,66 @@ app.use('/user', jwtCheck, databaseConnection);
 app.use('/tmdb', tmdbConnection);
 
 
-app.use('/game', socketIoMiddleware, gameConnection); //socket.io
+/*
+  // Middleware per passare l'istanza di socket.io a tutte le route
+  const socketIoMiddleware = (req, res, next) => {
+      req.io = io;
+      next(); //passa il controllo alla route successiva
+  }
+*/
 
-/* //sul frontend
+//app.use('/game', socketIoMiddleware, gameConnection); //socket.io
+
+const controllerGame = require('./Controllers/gameConnectionController');
+//Socket.io su /game
+io.on('connection', (socket) => {
+  console.log('Un nuovo client si è connesso');
+
+  let room = socket.handshake.query.room || ''; //parametro passato nella richiesta GET
+  let roomName = room.split('-')[0]; //nome della stanza
+  let roomId = room.split('-')[1]; //codice della stanza
+
+
+  socket.on('creaPartita', (data) => {
+    controllerGame.creaPartita(socket, data);
+  });
+
+  socket.on('partecipaPartita', (data) => {
+    controllerGame.partecipaPartita(socket, io, data);
+  });
+
+  socket.on('invioListaFilm', (data) => {
+    controllerGame.invioListaFilm(socket, data);
+  });
+
+  socket.on('statoPartecipantiPronto', (data) => {
+    controllerGame.statoPartecipantiPronto(socket, data);
+  });
+
+  socket.on('avviaPartita', (data) => {
+    controllerGame.avviaPartita(socket, io, data);
+  });
+
+  socket.on('inviaPunteggi', (data) => {
+    controllerGame.inviaPunteggi(socket, io, data);
+  });
+
+  socket.on('getRoom', (data) => {
+    controllerGame.getRoom(socket, data);
+  });
+
+  
+
+  // Gestione della disconnessione
+  socket.on('disconnect', () => {
+    console.log('Un client si è disconnesso');
+  });
+
+});
+
+
+
+/* //sul frontend SOCKET IO
 
 import { io } from 'socket.io-client';
 
@@ -77,7 +130,11 @@ const [timeResponse, setTimeResponse] = useState('');
 
 useEffect(() => {
 // Connessione al server Socket.io
-const newSocket = io(SOCKET_IO_URL);
+let newSocket = io(SOCKET_IO_URL);
+setSocket(newSocket);
+
+//dopo che ha ottenuto un codice di partita
+newSocket = io(SOCKET_IO_URL/gameRoom); 
 setSocket(newSocket);
 }, []); // Eseguito solo al primo render
   
@@ -98,11 +155,11 @@ useEffect(() => {
         setTimeResponse(data);
       });
     }
-  }, [socket]); // Eseguito quando socket cambia
+}, [socket]); // Eseguito quando socket cambia
 
   const sendGreeting = () => {
     if (socket) {
-      socket.emit('saluto', { nome: 'Riccardo' });
+      socket.emit('saluto', { idPartita: 'id', nome: 'Riccardo' });
     }
   };
 
@@ -117,6 +174,8 @@ useEffect(() => {
       socket.emit('richiestaTempo');
     }
   };
+
+  //PER CHIUDERE LA CONNESSIONE DEVI FARE socket.disconnect(); //IL RESTO FA TUTTO DA SOLO
 
   return ( //Simulazione di un client di un gioco multiplayer
     <div>
@@ -134,6 +193,8 @@ useEffect(() => {
 
 */
 
+
+
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sxqus.mongodb.net/MovieMatcher",)
     .then(() => {
@@ -141,9 +202,15 @@ mongoose.connect("mongodb+srv://riccardosemeraro:moviematcher2024@cinematch.09sx
 
         // Start the server
         app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+            //console.log(`Server is running on port ${PORT}`);
             console.log(`Server avviato su http://localhost:${PORT}`);
         });
+
+        server.listen(SOCKETPORT, () => {
+            //console.log('Socket.io server is running on port 10000');
+            console.log(`Server Socket.io avviato su http://localhost:${SOCKETPORT}`);
+        });
+
     }).catch((error) => {
         console.log("Error connecting to MongoDB", error);
     });
