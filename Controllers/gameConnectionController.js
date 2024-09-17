@@ -106,8 +106,25 @@ const creaPartita = async (socket, data) => {
     console.log('Lista partecipanti: ', newMatch.listaPartecipanti);
     console.log('Lista partecipanti della stanza:', roomsVariables[roomId].listaPartecipanti);
 
+
+
+    const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === username);
+
+    const risposta = {
+        roomId: roomsVariables[roomId].roomId,
+        roomName: roomsVariables[roomId].roomName,
+        creatore: roomsVariables[roomId].creatore,
+        me: usernameListaFilm,
+        listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
+        listaFilm: roomsVariables[roomId].listaFilm,
+        impostazioni: roomsVariables[roomId].impostazioni,
+        stato: roomsVariables[roomId].stato,
+        dataCreazione: roomsVariables[roomId].dataCreazione,
+        classifica: roomsVariables[roomId].classifica,
+    }
+
     // Risposta al client
-    socket.emit('rispostaCreazionePartita', {roomId: roomId, roomName: roomName, message: 'Partita creata con successo!'});
+    socket.emit('rispostaCreazionePartita', {roomId: roomId, variabiliRoom: risposta, message: 'Partita creata con successo!'});
 }
 
 const partecipaPartita = async (socket, io, data) => {
@@ -150,7 +167,23 @@ const partecipaPartita = async (socket, io, data) => {
 
         await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { listaPartecipanti: roomsVariables[roomId].listaPartecipanti }); //aggiorno la lista dei partecipanti su mongoDB
 
-        io.to(roomId).emit('rispostaPartecipaPartita', {roomId: roomId, listaPartecipanti: roomsVariables[roomId].listaPartecipanti, message:'Partita creata con successo!'}); //invia a tutti i client collegati alla stanza
+
+        const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === username);
+
+        const risposta = {
+            roomId: roomsVariables[roomId].roomId,
+            roomName: roomsVariables[roomId].roomName,
+            creatore: roomsVariables[roomId].creatore,
+            me: usernameListaFilm,
+            listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
+            listaFilm: roomsVariables[roomId].listaFilm,
+            impostazioni: roomsVariables[roomId].impostazioni,
+            stato: roomsVariables[roomId].stato,
+            dataCreazione: roomsVariables[roomId].dataCreazione,
+            classifica: roomsVariables[roomId].classifica,
+        }
+
+        io.to(roomId).emit('rispostaPartecipaPartita', {roomId: roomId, variabiliRoom: risposta, message:'Partita creata con successo!'}); //invia a tutti i client collegati alla stanza
     }
 
 }
@@ -184,7 +217,8 @@ const invioListaFilm = async (socket, data) => {
         roomId: roomsVariables[roomId].roomId,
         roomName: roomsVariables[roomId].roomName,
         creatore: roomsVariables[roomId].creatore,
-        listaPartecipanti: usernameListaFilm,
+        me: usernameListaFilm,
+        listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
         listaFilm: roomsVariables[roomId].listaFilm,
         impostazioni: roomsVariables[roomId].impostazioni,
         stato: roomsVariables[roomId].stato,
@@ -284,7 +318,8 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
         roomId: roomsVariables[roomId].roomId,
         roomName: roomsVariables[roomId].roomName,
         creatore: roomsVariables[roomId].creatore,
-        listaPartecipanti: usernameListaFilm,
+        me: usernameListaFilm,
+        listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
         listaFilm: roomsVariables[roomId].listaFilm,
         impostazioni: roomsVariables[roomId].impostazioni,
         stato: roomsVariables[roomId].stato,
@@ -292,7 +327,7 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
         classifica: roomsVariables[roomId].classifica,
     }
 
-    io.to(roomId).emit('rispostaAvviaPartita', {roomId: roomId, risposta: risposta, message:'Partita creata con successo!'}); //invia a tutti i client collegati alla stanza
+    io.to(roomId).emit('rispostaAvviaPartita', {roomId: roomId, variabiliRoom: risposta, message:'Partita creata con successo!'}); //invia a tutti i client collegati alla stanza
 
 }
 
@@ -359,7 +394,8 @@ const inviaPunteggi = async (socket, io, data) => {
             roomId: roomsVariables[roomId].roomId,
             roomName: roomsVariables[roomId].roomName,
             creatore: roomsVariables[roomId].creatore,
-            listaPartecipanti: usernameListaFilm,
+            me: usernameListaFilm,
+            listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
             listaFilm: roomsVariables[roomId].listaFilm,
             impostazioni: roomsVariables[roomId].impostazioni,
             stato: roomsVariables[roomId].stato,
@@ -417,6 +453,7 @@ const inviaPunteggi = async (socket, io, data) => {
 
             //invio i dati (oltre i classici) per poter visualizzare la ruota della fortuna poi il vincitore
             io.to(roomId).emit('rispostaInviaRuota', {roomId: roomId, risposta: roomsVariables[roomId], vincitore: parimeritoClassifica[indiceParimerito], parimeritoClassifica: parimeritoClassifica, message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
+            //ID - VAR ROOM - VINCITORE - POSIZIONE DEL VINCITORE - PARIMERITI(FILM CON STESSO PUNTEGGIO)
 
             //parimeritoClassifica e indiceParimerito serviranno per la ruota della fortuna
 
