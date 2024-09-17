@@ -8,7 +8,6 @@ const { get, set } = require('mongoose');
 const HistoryMatch = require('../Models/HistoryMatch');
 const { getRoomsVariables, setRoomsVariables } = require('../utils/roomsVariabiles');
 
-
 function creaIdPartita(){ //crea un codice per la partita
     roomId = '';
     let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -163,16 +162,23 @@ const invioListaFilm = async (socket, data) => {
     const roomName = data.roomName; //nome della stanza
     const listaFilm = data.listaFilm; //lista dei film
 
+    console.log('Lista film:', listaFilm);
+
+
     socket.join(roomId); //il client si unisce alla stanza con il codice della partita
 
     let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
 
+
     roomsVariables[roomId].listaPartecipanti.map((partecipante) => {
         if (partecipante.username === username) {
             partecipante.listaFilm = listaFilm;
+            console.log('Lista film partecipante:', partecipante.listaFilm);
             partecipante.stato = 'Pronto';
+            
         }
     });
+    
 
     await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { listaPartecipanti: roomsVariables[roomId].listaPartecipanti }); //aggiorno la lista dei partecipanti su mongoDB
 
@@ -209,6 +215,8 @@ const statoPartecipantiPronto = async (socket, data) => { //funzione per verific
     let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
 
     let risposta = true;
+
+    console.log('roomId:', roomId, '+ roomsVariables[roomId]:', roomsVariables[roomId]);
 
     roomsVariables[roomId].listaPartecipanti.map((partecipante) => {
         if(partecipante.stato !== 'Pronto'){
@@ -461,8 +469,6 @@ const getRoom = async (socket, data) => {
 
     socket.emit('rispostaGetRoom', {roomId: roomId, variabiliRoom: risposta, message: 'Room inviata con successo'});
 }
-
-
 
 module.exports = 
                 {
