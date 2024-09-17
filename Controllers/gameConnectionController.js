@@ -25,6 +25,7 @@ const creaPartita = async (socket, data) => {
     const creatore = data.username; //id dell'utente
     let roomName = data.roomName; //nome della stanza
     //let roomId = data.roomId; //codice della stanza
+    let modalita = data.modalita; //tipo di gioco
 
 
     let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
@@ -62,7 +63,7 @@ const creaPartita = async (socket, data) => {
             creatore: creatore,
             listaPartecipanti: [],
             listaFilm: [],
-            impostazioni: '',
+            impostazioni: modalita,
             stato: 'Aperta',
             dataCreazione: dataCreazione,
             classifica: [],
@@ -88,7 +89,7 @@ const creaPartita = async (socket, data) => {
         creatore: creatore,
         listaPartecipanti: [],
         listaFilm: [],
-        impostazioni: '',
+        impostazioni: modalita,
         stato: 'Aperta',
         dataCreazione: dataCreazione,
         classifica: []
@@ -108,7 +109,7 @@ const creaPartita = async (socket, data) => {
 
 
 
-    const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === username);
+    const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === creatore);
 
     const risposta = {
         roomId: roomsVariables[roomId].roomId,
