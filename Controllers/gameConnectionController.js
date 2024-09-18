@@ -272,6 +272,7 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
 
     roomsVariables[roomId].listaPartecipanti.map((partecipante) => {
         //console.log('Partecipante:', partecipante);
+
         partecipante.listaFilm.map((film) => {
             //console.log('Film:', film);
 
@@ -283,6 +284,17 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
             roomsVariables[roomId].listaFilm.push(oggettoFilm);
         });
     });
+
+    //setto il vettore dei punteggi per ogni film di tanti zeri quanti sono i partecipanti
+    const numeroPartecipanti = roomsVariables[roomId].listaPartecipanti.length();
+    roomsVariables[roomId].listaFilm.map((film) => {
+        const cont = 0;
+        while (cont < numeroPartecipanti){
+            film.punteggi.push(0);
+            cont++;
+        }
+    });
+
     //console.log('Lista film gioco:', roomsVariables[roomId].listaFilm); //LISTA CON POSSIBILI DUPLICATI DA ELIMINARE
 
     //voglio eliminare i duplicati da listaFilmGioco sulla base dell'id
@@ -346,9 +358,12 @@ const inviaPunteggi = async (socket, io, data) => {
 
     let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
 
-    let i = 0;
+    //voglio individuare la posizione di un elemento nella lista dei partecipanti
+    const posizionePartecipante = roomsVariables[roomId].listaPartecipanti.findIndex(partecipante => partecipante.username === username);
+
+    const i = 0;
     roomsVariables[roomId].listaFilm.map((elemento) => {
-        elemento.punteggi.push(punteggi[i]);
+        elemento.punteggi[posizionePartecipante] = punteggi[i];
         i++;
     });
     //console.log('Lista film con punteggi:', roomsVariables[roomId].listaFilm);
