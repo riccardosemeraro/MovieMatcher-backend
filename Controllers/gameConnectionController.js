@@ -286,9 +286,9 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
     });
 
     //setto il vettore dei punteggi per ogni film di tanti zeri quanti sono i partecipanti
-    const numeroPartecipanti = roomsVariables[roomId].listaPartecipanti.length();
+    const numeroPartecipanti = roomsVariables[roomId].listaPartecipanti.length;
     roomsVariables[roomId].listaFilm.map((film) => {
-        const cont = 0;
+        let cont = 0;
         while (cont < numeroPartecipanti){
             film.punteggi.push(0);
             cont++;
