@@ -148,11 +148,11 @@ const partecipaPartita = async (socket, io, data) => {
     else if (partita.stato !== 'Aperta') { //se la partita non è più aperta
         console.log("Partita non più aperta");
         socket.emit('rispostaPartecipazionePartitaNegata', {roomId: roomId, message: 'Partita non più aperta!'});
-    }
+    }/*
     else if ( roomsVariables[roomId].listaPartecipanti.find((partecipante) => partecipante.username === username) !== undefined ) { //se il partecipante è già presente nella lista dei partecipanti
         console.log("Partecipante già presente");
         socket.emit('rispostaPartecipazionePartitaNegata', {roomId: roomId, message: 'Partecipante già presente!'});
-    }
+    }*/
     else {
         oggettoPartecipante = {
             username: username,
@@ -160,7 +160,10 @@ const partecipaPartita = async (socket, io, data) => {
             listaFilm: []
         }
 
-        roomsVariables[roomId].listaPartecipanti.push(oggettoPartecipante); //aggiungo il partecipante alla lista dei partecipanti
+        if ( roomsVariables[roomId].listaPartecipanti.find((partecipante) => partecipante.username === username) === undefined )
+        {
+            roomsVariables[roomId].listaPartecipanti.push(oggettoPartecipante); //aggiungo il partecipante alla lista dei partecipanti
+        }
 
         setRoomsVariables(roomsVariables); //aggiorno le variabili delle stanze
 
@@ -489,7 +492,8 @@ const getRoom = async (socket, data) => {
         roomId: roomsVariables[roomId].roomId,
         roomName: roomsVariables[roomId].roomName,
         creatore: roomsVariables[roomId].creatore,
-        listaPartecipanti: usernameListaFilm,
+        me: usernameListaFilm,
+        listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
         listaFilm: roomsVariables[roomId].listaFilm,
         impostazioni: roomsVariables[roomId].impostazioni,
         stato: roomsVariables[roomId].stato,

@@ -1,3 +1,4 @@
+const { get } = require('mongoose');
 const HistoryMatch = require('../Models/HistoryMatch');
 
 //voglio tutti i dati che sono presenti nella tabella historyMatch su mongoDB
@@ -38,7 +39,8 @@ let _roomsVariables = getHistoryMatch() || {};
 
 
 // getter per la variabile privata
-function getRoomsVariables() {
+async function getRoomsVariables() {
+    _roomsVariables = await getHistoryMatch();
     return _roomsVariables;
 }
 
