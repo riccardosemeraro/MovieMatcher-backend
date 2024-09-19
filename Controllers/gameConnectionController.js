@@ -328,13 +328,12 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
     await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { stato: roomsVariables[roomId].stato, listaFilm: roomsVariables[roomId].listaFilm, classifica: roomsVariables[roomId].classifica }); //aggiorno la lista dei film su mongoDB
 
 
-    const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === username);
+    //const usernameListaFilm = roomsVariables[roomId].listaPartecipanti.find(partecipante => partecipante.username === username);
 
     const risposta = {
         roomId: roomsVariables[roomId].roomId,
         roomName: roomsVariables[roomId].roomName,
         creatore: roomsVariables[roomId].creatore,
-        me: usernameListaFilm,
         listaPartecipanti: roomsVariables[roomId].listaPartecipanti,
         listaFilm: roomsVariables[roomId].listaFilm,
         impostazioni: roomsVariables[roomId].impostazioni,
