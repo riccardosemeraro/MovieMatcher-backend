@@ -428,7 +428,7 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
 
         socket.emit('rispostaInviaPunteggi', {roomId: roomId, variabiliRoom: risposta, message: 'Punteggi inviati con successo'});
 
-    } else { //se è il caso di calcolare la classifica e inviarla al client
+    } else { //se è il caso di calcolare la classifica e inviarla ai client
 
         //ORDINO LA CLASSIFICA IN BASE AI PUNTEGGI (in ordine decrescente)
         roomsVariables[roomId].classifica = roomsVariables[roomId].classifica.sort((a, b) => b.punteggio - a.punteggio);
@@ -437,22 +437,26 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
 
         setRoomsVariables(roomsVariables); //aggiorno le variabili delle stanze
 
-        await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { classifica: roomsVariables[roomId].classifica }); //aggiorno la classifica su mongoDB
+        roomsVariables[roomId].stato = 'Terminata';
+
+        await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { classifica: roomsVariables[roomId].classifica, stato: roomsVariables[roomId].stato }); //aggiorno la classifica su mongoDB
 
 
         //VEDO SE CI SONO PARIMERITO NELLA CLASSIFICA
         const punteggioMassimo = roomsVariables[roomId].classifica[0].punteggio;
         let parimerito = false;
         let parimeritoClassifica = []; //vettore che conterrà i parimerito
+        let count = 0;
 
         roomsVariables[roomId].classifica.map((elemento) => {
             if(elemento.punteggio === punteggioMassimo){
                 parimerito = true;
+                count++;
                 parimeritoClassifica.push(elemento);
             }
         });
 
-        if(parimerito === true){ //se ci sono dei parimerito nella classifica
+        if(parimerito === true && count > 1){ //se ci sono dei parimerito nella classifica
             //gestione numero casuale per i parimerito
 
             const lunghezzaParimerito = parimeritoClassifica.length;
@@ -472,7 +476,10 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
 
             setRoomsVariables(roomsVariables); //aggiorno le variabili delle stanze
 
+            roomsVariables[roomId].stato = 'Terminata';
+
             await HistoryMatch.HistoryMatch.findOneAndUpdate({ roomId: roomId }, { classifica: roomsVariables[roomId].classifica }); //aggiorno la classifica su mongoDB
+
 
             //invio i dati (oltre i classici) per poter visualizzare la ruota della fortuna poi il vincitore
             io.to(roomId).emit('rispostaInviaRuota', {roomId: roomId, risposta: roomsVariables[roomId], vincitore: parimeritoClassifica[indiceParimerito], parimeritoClassifica: parimeritoClassifica, message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
