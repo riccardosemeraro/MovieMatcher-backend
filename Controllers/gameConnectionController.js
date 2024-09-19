@@ -6,7 +6,7 @@
 
 const { get, set } = require('mongoose');
 const HistoryMatch = require('../Models/HistoryMatch');
-const { getRoomsVariables, setRoomsVariables } = require('../utils/roomsVariabiles');
+const { getRoomsVariables, setRoomsVariables, getHistoryMatch } = require('../utils/roomsVariabiles');
 
 
 function creaIdPartita(){ //crea un codice per la partita
@@ -347,7 +347,7 @@ const avviaPartita = async (socket, io, data) => { //funzione per avviare la par
 
 }
 
-const inviaPunteggi = async (socket, io, data) => {
+const inviaPunteggi = async (socket, io, data, roomsVariables) => {
     console.log('Richiesta di invio punti ricevuta dal client:', data);
 
     const username = data.username;
@@ -356,12 +356,16 @@ const inviaPunteggi = async (socket, io, data) => {
 
     socket.join(roomId);
 
-    let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
+    //let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
+    console.log('roomVariables:', roomsVariables);
+    console.log('roomId:', roomId);
+    console.log('punteggi:', punteggi);
+    console.log('listaPartecipanti:', roomsVariables[roomId].listaPartecipanti);
 
     //voglio individuare la posizione di un elemento nella lista dei partecipanti
-    const posizionePartecipante = roomsVariables[roomId].listaPartecipanti.findIndex(partecipante => partecipante.username === username);
+    const posizionePartecipante = await roomsVariables[roomId].listaPartecipanti.findIndex(partecipante => partecipante.username === username);
 
-    const i = 0;
+    let i = 0;
     roomsVariables[roomId].listaFilm.map((elemento) => {
         elemento.punteggi[posizionePartecipante] = punteggi[i];
         i++;

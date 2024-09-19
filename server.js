@@ -11,6 +11,8 @@ const cors = require('cors');
 const { auth } = require('express-oauth2-jwt-bearer');
 const mongoose = require('mongoose');
 
+const {getRoomsVariables} = require('./utils/roomsVariabiles'); //per ottenere le variabili delle stanze
+
 const app = express();
 const PORT = 9000; //process.env.PORT || 3000;
 const SOCKETPORT = 10000; //porta per socket.io
@@ -96,8 +98,9 @@ io.on('connection', (socket) => {
     controllerGame.avviaPartita(socket, io, data);
   });
 
-  socket.on('inviaPunteggi', (data) => {
-    controllerGame.inviaPunteggi(socket, io, data);
+  socket.on('inviaPunteggi', async (data) => {
+    let roomsVariables = await getRoomsVariables(); //ottengo le variabili delle stanze
+    controllerGame.inviaPunteggi(socket, io, data, roomsVariables);
   });
 
   socket.on('getRoom', (data) => {

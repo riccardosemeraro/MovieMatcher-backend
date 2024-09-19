@@ -52,5 +52,6 @@ function setRoomsVariables(value) {
 // Esporta le funzioni
 module.exports = {
     getRoomsVariables,
-    setRoomsVariables
+    setRoomsVariables,
+    getHistoryMatch
 };
