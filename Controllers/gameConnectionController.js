@@ -386,6 +386,7 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
 
     //aggiorno lo stato del partecipante
     roomsVariables[roomId].listaPartecipanti.map((partecipante) => {
+        console.log('Partecipante:', partecipante.username, 'stato:', partecipante.stato);
         if(partecipante.username === username){
             partecipante.stato = 'Votato';
         }
@@ -403,8 +404,9 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
     let rispostaStatoPartecipantiVotato = true;
 
     roomsVariables[roomId].listaPartecipanti.map((partecipante) => {
+        console.log('Partecipante', partecipante.username, 'stato:', partecipante.stato);
         if(partecipante.stato !== 'Votato'){
-            risposta = false;
+            rispostaStatoPartecipantiVotato = false;
         }
     });
 
