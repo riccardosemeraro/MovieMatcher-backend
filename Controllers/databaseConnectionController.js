@@ -365,26 +365,24 @@ const getMyHistoryMatch = async (req, res) => {
 
         const history = await HistoryMatch.HistoryMatch.find({});
 
+        //prende le partite in cui l'utente ha partecipato
         user.HistoryMatch.map((match) => {
-            
-            history.map((game) => {
-                if (match === game.roomId && game.stato === 'Aperta') {
-                    risposta.push(game);
+            history.map((game) => { 
+                if (match === game.roomId) {
+                    risposta = [...risposta, game];
                 }
             });
+        });
 
-            history.map((game) => {
-                if (match === game.roomId && game.stato === 'In corso') {
-                    risposta.push(game);
-                }
-            });
+        //ordino i match per stato nell'ordine Aperta, In corso, Terminata 
+        const ordine = ["Aperta", "In corso", "Terminata"];
+        risposta.sort((a, b) => {
+            return ordine.indexOf(a.stato) - ordine.indexOf(b.stato);
+        });
 
-            history.map((game) => {
-                if (match === game.roomId && game.stato === 'Terminata') {
-                    risposta.push(game);
-                }
-            });
-
+        //stampo i match con il loro stato in maniera ordinata
+        risposta.map((game) => {
+            console.log('Match:', game.roomId, 'Stato:', game.stato);
         });
         
         res.status(200).json({ historyMatch: risposta, message: "HistoryMatch dell'utente" });
