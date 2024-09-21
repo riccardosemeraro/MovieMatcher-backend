@@ -499,22 +499,19 @@ const inviaPunteggi = async (socket, io, data, roomsVariables) => {
 
 
             //invio i dati (oltre i classici) per poter visualizzare la ruota della fortuna poi il vincitore
-            io.to(roomId).emit('rispostaInviaRuota', {roomId: roomId, risposta: roomsVariables[roomId], vincitore: parimeritoClassifica[indiceParimerito], parimeritoClassifica: parimeritoClassifica, message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
+            io.to(roomId).emit('rispostaInviaRuota', {roomId: roomId, variabiliRoom: roomsVariables[roomId], vincitore: parimeritoClassifica[indiceParimerito], parimeritoClassifica: parimeritoClassifica, message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
             //ID - VAR ROOM - VINCITORE - POSIZIONE DEL VINCITORE - PARIMERITI(FILM CON STESSO PUNTEGGIO)
 
             //parimeritoClassifica e indiceParimerito serviranno per la ruota della fortuna
 
         } else { //se non ci sono parimerito nella classifica
 
-            io.to(roomId).emit('rispostaInviaClassificaVincitore', {roomId: roomId, risposta: roomsVariables[roomId], vincitore: roomsVariables[roomId].classifica[0], message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
+            io.to(roomId).emit('rispostaInviaClassificaVincitore', {roomId: roomId, variabiliRoom: roomsVariables[roomId], vincitore: roomsVariables[roomId].classifica[0], message: 'Classifica inviata con successo'}); //invia a tutti i client collegati alla stanza
 
         }
 
-
     }
 
-    
-    
     
 }
 
