@@ -12,4 +12,6 @@ router.post('/getWatchList', controllerDatabase.getWatchList);
 router.post('/getUserData', controllerDatabase.getUserData);
 router.post('/updateUserData', controllerDatabase.updateUserData);
 
+router.get('/getMyHistoryMatch', controllerDatabase.getMyHistoryMatch);
+
 module.exports = router;

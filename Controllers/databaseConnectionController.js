@@ -1,4 +1,5 @@
 const User = require('../Models/Users');
+const HistoryMatch = require('../Models/HistoryMatch');
 const { default: axios } = require('axios');
 
 const verify = async (req, res) => {
@@ -342,6 +343,60 @@ const updateUserData = async (req, res) => {
 
 };
 
+const getMyHistoryMatch = async (req, res) => {
+
+    console.log("Richiesta della mia lista di match");
+
+    //axios.post('https://moviematcher-backend.onrender.com/user/getMyHistoryMatch', { headers: {Authorization: 'Bearer '+token, nickname: JSON.parse(localStorage.getItem('user')).nickname} })
+
+    const nickname = req.headers.nickname;
+
+    const token = req.headers.authorization;
+
+    if (!token && !nickname) {
+        res.status(401).json({ message: 'Params missing' });
+    }
+
+    try {
+
+        let risposta = [];
+        
+        const user = await User.Users.findOne({ Username: nickname });
+
+        const history = await HistoryMatch.HistoryMatch.find({});
+
+        user.HistoryMatch.map((match) => {
+            
+            history.map((game) => {
+                if (match === game.roomId && game.stato === 'Aperta') {
+                    risposta.push(game);
+                }
+            });
+
+            history.map((game) => {
+                if (match === game.roomId && game.stato === 'In corso') {
+                    risposta.push(game);
+                }
+            });
+
+            history.map((game) => {
+                if (match === game.roomId && game.stato === 'Terminata') {
+                    risposta.push(game);
+                }
+            });
+
+        });
+        
+        res.status(200).json({ historyMatch: risposta, message: "HistoryMatch dell'utente" });
+
+    } catch (error) {
+        console.error("", error);
+        console.error("Errore durante la richiesta dei dati dell'utente:", error);
+        res.status(500).json({ message: 'Error during user data request', error });
+    }
+
+};
+
 
 module.exports =
                 {
@@ -352,5 +407,6 @@ module.exports =
                     getMyList,
                     getWatchList,
                     getUserData,
-                    updateUserData
+                    updateUserData,
+                    getMyHistoryMatch
                 };

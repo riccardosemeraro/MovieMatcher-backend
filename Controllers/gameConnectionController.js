@@ -5,6 +5,7 @@
 //socket.to(roomId).emit('rispostaCreazionePartita', 'Partita creata con successo!'); //invia a tutti i client collegati alla stanza, escluso quello che ha inviato il messaggio
 
 const { get, set } = require('mongoose');
+const User = require('../Models/Users');
 const HistoryMatch = require('../Models/HistoryMatch');
 const { getRoomsVariables, setRoomsVariables, getHistoryMatch } = require('../utils/roomsVariabiles');
 
@@ -99,6 +100,14 @@ const creaPartita = async (socket, data) => {
 
     try {
         const savedMatch = await newMatch.save();
+
+        //aggiorno il vettore historyMatch dell'utente
+        const user = await User.Users.findOne({ Username: creatore });
+        if (!user.HistoryMatch.includes(roomId)) {
+            user.HistoryMatch.push(roomId);
+            await User.Users.findOneAndUpdate({ Username: creatore }, { HistoryMatch: user.HistoryMatch});
+        }
+
         console.log("Match salvato in MongoDB:", { savedMatch });
     } catch (saveError) {
         console.error("Errore durante il salvataggio del Match:", saveError);
@@ -185,6 +194,13 @@ const partecipaPartita = async (socket, io, data) => {
             stato: roomsVariables[roomId].stato,
             dataCreazione: roomsVariables[roomId].dataCreazione,
             classifica: roomsVariables[roomId].classifica,
+        }
+
+        //aggiorno il vettore historyMatch dell'utente
+        const user = await User.Users.findOne({ Username: username });
+        if (!user.HistoryMatch.includes(roomId)) {
+            user.HistoryMatch.push(roomId);
+            await User.Users.findOneAndUpdate({ Username: username }, { HistoryMatch: user.HistoryMatch});
         }
 
         io.to(roomId).emit('rispostaPartecipaPartita', {roomId: roomId, variabiliRoom: risposta, message:'Partita creata con successo!'}); //invia a tutti i client collegati alla stanza

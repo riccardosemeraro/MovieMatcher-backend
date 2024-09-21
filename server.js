@@ -28,11 +28,10 @@ const http = require('http'); //richiede il modulo http
 const server = http.createServer(app); //crea il server http
 let io = socketIo(server, {cors: {origin: '*', methods: ['GET', 'POST']}}); //inizializza socket.io sul server http
 io = io.of('/game'); //crea uno spazio di nomi per il gioco
-//const gameNamespace = io.of('/game'); //crea uno spazio di nomi per il gioco
 /*Fine configurazione Socket.io*/
 
 
-//verifica che il token ricevuto da Auth0 sia valido
+//middleware che verifica che il token ricevuto da Auth0 sia valido
 const jwtCheck = auth({
     audience: 'moviematcher-certificate',
     issuerBaseURL: 'https://dev-u3m6ogvornq7wv88.us.auth0.com',
@@ -69,6 +68,10 @@ app.use('/tmdb', tmdbConnection);
 //app.use('/game', socketIoMiddleware, gameConnection); //socket.io
 
 const controllerGame = require('./Controllers/gameConnectionController');
+
+//Bisognerebbe gestire la protezione della socket con un middleware che verifica il token (IMPLEMENTAZIONE FUTURA)
+//fortunamente utilizziamo la socket sul frontend solo quando sicuramente siamo loggati
+
 //Socket.io su /game
 io.on('connection', (socket) => {
   console.log('Un nuovo client si è connesso');
